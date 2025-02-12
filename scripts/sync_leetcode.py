@@ -48,10 +48,9 @@ def save_solution_to_repo(submission):
     
     try:
         problem_title = submission['title']
-        problem_slug = submission['titleSlug']  # This key might be missing
         solution_code = submission['code']
 
-        # Create a file for the problem
+        # Create a file for the problem in the 'solutions' directory
         file_path = os.path.join(solutions_path, f"{problem_slug}.py")
         
         # Save the solution to the file
@@ -81,8 +80,8 @@ def git_commit_and_push():
 def sync_solutions():
     submissions = fetch_leetcode_submissions()
 
-    # Loop through the submissions, no need to access 'data' key, use the direct structure
-    for submission in submissions['submissions_dump']:
+    # Loop through the submissions
+    for submission in submissions.get('submissions_dump', []):
         save_solution_to_repo(submission)
     
     git_commit_and_push()
