@@ -1,56 +1,86 @@
 import os
+import subprocess
 import requests
-import json
-from bs4 import BeautifulSoup
-from git import Repo
+from datetime import datetime
 
-# CONFIGURATION
-import os
+# GitHub repository path
+GITHUB_REPO_PATH = '/Users/madwhoo/Desktop/projects/leetcode-auto-sync'  # Update this with your repo path
 
-# Automatically detect the correct repo path
-GITHUB_REPO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# LeetCode submission API endpoint
+LEETCODE_API_URL = "https://leetcode.com/api/submissions/"
 
-print("Updated GITHUB_REPO_PATH is:", GITHUB_REPO_PATH)
-GITHUB_COMMIT_MESSAGE = "Auto-sync: Updated LeetCode solutions"
-print("GITHUB_REPO_PATH is:", GITHUB_REPO_PATH)
+# GitHub repository name
+GITHUB_REPO_NAME = "leetcode-auto-sync"
 
-# Start a session
-session = requests.Session()
+# Your GitHub username
+GITHUB_USERNAME = "MadhuvanthiSriPad"  # Update with your GitHub username
 
-# Manually set session cookies (get these from your browser)
-session.cookies.set("LEETCODE_SESSION", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X3ZlcmlmaWVkX2VtYWlsIjpudWxsLCJhY2NvdW50X3VzZXIiOiI5d2tuOCIsIl9hdXRoX3VzZXJfaWQiOiIxNjYzNjI5MiIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImFsbGF1dGguYWNjb3VudC5hdXRoX2JhY2tlbmRzLkF1dGhlbnRpY2F0aW9uQmFja2VuZCIsIl9hdXRoX3VzZXJfaGFzaCI6ImMxMzA1NmY3ZjNkMGJmNmEzNzg0NjNkOWI0ZjM5MzUwYjJmODg0ZGI5ODg0NGNiMzhlZDFhMmQ4ZjFhNTIzNjYiLCJzZXNzaW9uX3V1aWQiOiIzMmMyYzc3MCIsImlkIjoxNjYzNjI5MiwiZW1haWwiOiJtYWRodXZhbnRoaXNyaXBhZEBnbWFpbC5jb20iLCJ1c2VybmFtZSI6Im1hZGh1dmFudGhpc3JpcGFkIiwidXNlcl9zbHVnIjoibWFkaHV2YW50aGlzcmlwYWQiLCJhdmF0YXIiOiJodHRwczovL2Fzc2V0cy5sZWV0Y29kZS5jb20vdXNlcnMvZGVmYXVsdF9hdmF0YXIuanBnIiwicmVmcmVzaGVkX2F0IjoxNzM5MzQ1NzgzLCJpcCI6IjQ1LjI1MS4zMy45NCIsImlkZW50aXR5IjoiOTlhOGI0NjE2YWYzYjM5NjM3YjM1YzMwYmNhNmY1YzQiLCJkZXZpY2Vfd2l0aF9pcCI6WyIwOTMzODFhNzdjMTQxYWVjZTMwMGY2ZTQyYjE1N2Q1YiIsIjQ1LjI1MS4zMy45NCJdfQ.xg7Fz6Kktd95gbbKG0SwZ6GdEJzbao_WwoHtBg1Aguw")
-
-# Fetch the submissions page
-response = session.get("https://leetcode.com/submissions/")
-soup = BeautifulSoup(response.text, "html.parser")
-
-# Extract accepted submissions
-submissions = []
-for row in soup.find_all("tr"):
-    columns = row.find_all("td")
-    if len(columns) > 3:
-        problem_name = columns[1].text.strip()
-        status = columns[2].text.strip()
-        if status == "Accepted":
-            submissions.append(problem_name)
-
-# Save solutions locally
+# Set solutions directory
 solutions_path = os.path.join(GITHUB_REPO_PATH, "solutions")
 os.makedirs(solutions_path, exist_ok=True)
 
-for problem in submissions:
-    file_path = os.path.join(solutions_path, f"{problem}.txt")
-    with open(file_path, "w") as f:
-        f.write(f"Solution for {problem}")
+# Function to fetch LeetCode submissions
+def fetch_leetcode_submissions():
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    }
+    # Add your LeetCode login cookies here
+    cookies = {
+        'LEETCODE_SESSION': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X3ZlcmlmaWVkX2VtYWlsIjpudWxsLCJhY2NvdW50X3VzZXIiOiI5d2tuOCIsIl9hdXRoX3VzZXJfaWQiOiIxNjYzNjI5MiIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImFsbGF1dGguYWNjb3VudC5hdXRoX2JhY2tlbmRzLkF1dGhlbnRpY2F0aW9uQmFja2VuZCIsIl9hdXRoX3VzZXJfaGFzaCI6ImMxMzA1NmY3ZjNkMGJmNmEzNzg0NjNkOWI0ZjM5MzUwYjJmODg0ZGI5ODg0NGNiMzhlZDFhMmQ4ZjFhNTIzNjYiLCJzZXNzaW9uX3V1aWQiOiIzMmMyYzc3MCIsImlkIjoxNjYzNjI5MiwiZW1haWwiOiJtYWRodXZhbnRoaXNyaXBhZEBnbWFpbC5jb20iLCJ1c2VybmFtZSI6Im1hZGh1dmFudGhpc3JpcGFkIiwidXNlcl9zbHVnIjoibWFkaHV2YW50aGlzcmlwYWQiLCJhdmF0YXIiOiJodHRwczovL2Fzc2V0cy5sZWV0Y29kZS5jb20vdXNlcnMvZGVmYXVsdF9hdmF0YXIuanBnIiwicmVmcmVzaGVkX2F0IjoxNzM5MzQ1NzgzLCJpcCI6IjQ1LjI1MS4zMy45NCIsImlkZW50aXR5IjoiOTlhOGI0NjE2YWYzYjM5NjM3YjM1YzMwYmNhNmY1YzQiLCJkZXZpY2Vfd2l0aF9pcCI6WyIwOTMzODFhNzdjMTQxYWVjZTMwMGY2ZTQyYjE1N2Q1YiIsIjQ1LjI1MS4zMy45NCJdfQ.xg7Fz6Kktd95gbbKG0SwZ6GdEJzbao_WwoHtBg1Aguw'  # Replace with your actual session cookie
+    }
 
-# Commit and push to GitHub
-repo = Repo(GITHUB_REPO_PATH)
-repo.git.add(A=True)
-repo.index.commit(GITHUB_COMMIT_MESSAGE)
-origin = repo.remote(name="origin")
-origin.push()
+    response = requests.get(LEETCODE_API_URL, headers=headers, cookies=cookies)
+    submissions = response.json()
 
-print("✅ Solutions synced to GitHub!")
+    # Print the response to check its structure
+    print(submissions)
+    
+    return submissions
 
+# Function to save solutions to GitHub repository
+def save_solution_to_repo(submission):
+    try:
+        problem_title = submission['title']
+        problem_slug = submission['titleSlug']  # This key might be missing
+        solution_code = submission['code']
 
+        # Create a file for the problem
+        file_path = os.path.join(solutions_path, f"{problem_slug}.py")
+        
+        # Save the solution to the file
+        with open(file_path, "w") as file:
+            file.write(solution_code)
+        
+        print(f"Saved solution for {problem_title} to {file_path}")
+    except KeyError as e:
+        print(f"Missing key {e} in submission: {submission}")
 
+# Function to commit and push changes to GitHub
+def git_commit_and_push():
+    # Change the working directory to the GitHub repo
+    os.chdir(GITHUB_REPO_PATH)
+    
+    # Stage all the changes
+    subprocess.run(["git", "add", "."])
+
+    # Commit the changes
+    commit_message = f"Sync solutions: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    subprocess.run(["git", "commit", "-m", commit_message])
+
+    # Push the changes
+    subprocess.run(["git", "push", "origin", "main"])
+
+# Main function to sync solutions
+def sync_solutions():
+    submissions = fetch_leetcode_submissions()
+
+    # Loop through the submissions, no need to access 'data' key, use the direct structure
+    for submission in submissions['submissions_dump']:
+        save_solution_to_repo(submission)
+    
+    git_commit_and_push()
+    print("✅ Solutions synced to GitHub!")
+
+if __name__ == "__main__":
+    print(f"GITHUB_REPO_PATH is: {GITHUB_REPO_PATH}")
+    sync_solutions()
