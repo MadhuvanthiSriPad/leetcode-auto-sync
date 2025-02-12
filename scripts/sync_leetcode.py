@@ -5,8 +5,14 @@ from bs4 import BeautifulSoup
 from git import Repo
 
 # CONFIGURATION
-GITHUB_REPO_PATH = "/Desktop/projects/leetcode-auto-sync"
+import os
+
+# Automatically detect the correct repo path
+GITHUB_REPO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+print("Updated GITHUB_REPO_PATH is:", GITHUB_REPO_PATH)
 GITHUB_COMMIT_MESSAGE = "Auto-sync: Updated LeetCode solutions"
+print("GITHUB_REPO_PATH is:", GITHUB_REPO_PATH)
 
 # Start a session
 session = requests.Session()
@@ -45,3 +51,6 @@ origin = repo.remote(name="origin")
 origin.push()
 
 print("✅ Solutions synced to GitHub!")
+
+
+
