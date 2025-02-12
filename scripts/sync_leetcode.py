@@ -39,6 +39,13 @@ def fetch_leetcode_submissions():
 
 # Function to save solutions to GitHub repository
 def save_solution_to_repo(submission):
+    problem_slug = submission.get('titleSlug', submission.get('title_slug', 'default_slug'))
+    
+    # Use the fallback value 'default_slug' if both are missing
+    if problem_slug == 'default_slug':
+        print(f"Missing key 'titleSlug' in submission: {submission}")
+        return
+    
     try:
         problem_title = submission['title']
         problem_slug = submission['titleSlug']  # This key might be missing
