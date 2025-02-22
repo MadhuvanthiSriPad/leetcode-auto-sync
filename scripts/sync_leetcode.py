@@ -3,7 +3,7 @@ import subprocess
 import requests
 from datetime import datetime
 
-# GitHub repository path
+# GitHub repository path 
 GITHUB_REPO_PATH = '/Users/madwhoo/Desktop/projects/leetcode-auto-sync'  # Update this with your repo path
 
 # LeetCode submission API endpoint
