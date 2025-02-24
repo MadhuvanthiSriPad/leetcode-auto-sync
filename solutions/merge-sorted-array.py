@@ -3,13 +3,6 @@ class Solution:
         """
         Do not return anything, modify nums1 in-place instead.
         """
-        i,j=0,n
-        if(m+n==n):
-            for i in range(m+n):
-                nums1[i]=nums2[i]
-        else:
-            while(j<=(m+n)-1 and i<=n-1):
-                nums1[j] =nums2[i]
-                j+=1
-                i+=1
-        nums1=nums1.sort()
+        for i in range(n):
+            nums1[m+i]=nums2[i]
+        return nums1.sort()
