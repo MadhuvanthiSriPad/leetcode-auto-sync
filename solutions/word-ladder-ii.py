@@ -9,31 +9,32 @@ class Solution:
                     hm[pattern].append(word)
             return hm
         adj=build_adj([beginWord]+wordList)
+        adj = build_adj([beginWord] + wordList)
         q = deque([[beginWord]])
-        visited = set()
+        visited = set([beginWord])  # BeginWord should be in visited
         res = []
         found = False
-        while q:
+        
+        while q and not found:
             level_visited = set()
             level_len = len(q)
 
-            for i in range(level_len):
+            for _ in range(level_len):  # Iterate over the current level
                 path = q.popleft()
                 word = path[-1]
 
                 if word == endWord:
                     res.append(path)
                     found = True
-                
+
                 for i in range(len(word)):
-                    pattern = word[:i]+'*'+word[i+1:]
+                    pattern = word[:i] + '*' + word[i+1:]
 
                     for nei in adj[pattern]:
                         if nei not in visited:
-                            new_path = path+[nei]
-                            q.append(new_path)
+                            q.append(path + [nei])  # Append new path correctly
                             level_visited.add(nei)
-                if found:
-                    break
-            visited.update(level_visited)
+
+            visited.update(level_visited)  # Update visited at end of level
+
         return res
