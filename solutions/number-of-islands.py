@@ -12,15 +12,11 @@ class Solution:
                     q = deque([(r,c)])
                     visited.add((r,c))
                     islands+=1
-                while q:
-                    dr,dc = q.popleft()
-                    for nr , nc in ([-1,0],[0,-1],[1,0],[0,1]):
-                        newr,newc = dr+nr,dc+nc
-                        if(0<=newr<row and 0<=newc<col and (newr,newc) not in visited and grid[newr][newc]=="1"):
-                            visited.add((newr,newc))
-                            q.append((newr,newc))
+                    while q:
+                        dr,dc = q.popleft()
+                        for nr , nc in [(-1,0),(0,-1),(1,0),(0,1)]:
+                            newr,newc = dr+nr,dc+nc
+                            if(0<=newr<row and 0<=newc<col and (newr,newc) not in visited and grid[newr][newc]=="1"):
+                                visited.add((newr,newc))
+                                q.append((newr,newc))
         return islands
-
-
-
-        
