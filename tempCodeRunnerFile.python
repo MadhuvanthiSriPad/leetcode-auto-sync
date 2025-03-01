@@ -1,0 +1,12 @@
+def printSubs(i,seq,s,k):
+    if (i >=len(s)):
+        if (sum(seq)==k ):
+            print(seq)
+        return
+        
+    seq.append(s[i])
+    printSubs(i+1,seq,s,k)
+    seq.pop()
+    printSubs(i+1,seq,s,k)
+s = [1,2,3,5]
+printSubs(0,[],s,6)

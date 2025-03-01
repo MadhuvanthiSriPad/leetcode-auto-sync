@@ -3,7 +3,11 @@ class Solution:
         
         unique = Counter(nums)
         res=[]
-        for key, val in unique.items():
-            if (val>=k):
-                res.append(key)
+        max_heap = [key for key,val in unique.items()]
+        heapq.heapify(max_heap)
+
+        while k:
+            res.append(heapq.heappop(max_heap))
+            k-=1
+        
         return res
