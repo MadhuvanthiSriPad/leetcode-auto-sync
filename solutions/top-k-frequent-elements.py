@@ -4,6 +4,6 @@ class Solution:
         unique = Counter(nums)
         res=[]
         for key, val in unique.items():
-            if (val>=k):
+            if (val>=k and len(res)<k):
                 res.append(key)
         return res
