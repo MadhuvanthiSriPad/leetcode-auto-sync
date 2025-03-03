@@ -7,7 +7,7 @@ class Solution:
 
             for c in ch:
                 char_count[ord(c)-ord('a')]+=1
-            
+
             combo = tuple(char_count)
 
             anagram[combo].append(ch)
