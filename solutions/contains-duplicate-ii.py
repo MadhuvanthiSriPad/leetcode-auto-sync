@@ -6,6 +6,6 @@ class Solution:
             if nums[i] in hm:
                 return True
             if(i>=k):
-                hm.pop(nums[i-k],None)
+                del hm[nums[i-k]]
             hm[nums[i]] = hm.get(nums[i],0)+1
         return False
