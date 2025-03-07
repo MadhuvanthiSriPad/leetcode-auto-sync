@@ -1,11 +1,10 @@
 class Solution:
     def containsNearbyDuplicate(self, nums: List[int], k: int) -> bool:
-        hm={}
-
-        for i in range(len(nums)):
-            if nums[i] in hm:
-                return True
-            if(i>=k):
-                del hm[nums[i-k]]
-            hm[nums[i]] = hm.get(nums[i],0)+1
+        seen = {}  # Dictionary to store number and its latest index
+        
+        for i, num in enumerate(nums):
+            if num in seen and i - seen[num] <= k:
+                return True  # Found duplicate within range
+            seen[num] = i  # Update latest index
+        
         return False
