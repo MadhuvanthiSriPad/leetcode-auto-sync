@@ -1,13 +1,14 @@
 class Solution:
     def longestNiceSubstring(self, s: str) -> str:
-        longest=""
-        
-        for i in range(len(s)):
-            flag = False
-            for j in range(i+1,len(s)):
-                substr = set(s[i:j+1])
+        if not s:
+            return ""
 
-                if all(c.lower() in substr and c.upper() in substr for c in substr):
-                    if(len(s[i:j+1])>len(longest)):
-                        longest = s[i:j+1]
-        return longest
+        char_set = set(s)
+        
+        for i, ch in enumerate(s):
+            if ch.swapcase() not in char_set:  # If ch's counterpart is missing
+                left = self.longestNiceSubstring(s[:i])  # Left part
+                right = self.longestNiceSubstring(s[i+1:])  # Right part
+                return max(left, right, key=len)
+
+        return s 
