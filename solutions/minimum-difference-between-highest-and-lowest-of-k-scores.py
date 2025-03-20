@@ -2,9 +2,10 @@ class Solution:
     def minimumDifference(self, nums: List[int], k: int) -> int:
         
         nums.sort()
-        res = float('inf')
-        if(len(nums)==1 or k==1):
-            return 0
-        for i in range(len(nums)-k+1):
-            res = min(res,nums[i+k-1]-nums[i])
-        return res
+        i, j = -1, len(nums)-k
+        result = []
+        while j >= 0:
+            heapq.heappush(result, (nums[i] - nums[j]))
+            i -= 1
+            j -= 1
+        return result[0]
